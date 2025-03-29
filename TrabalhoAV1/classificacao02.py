@@ -1,5 +1,3 @@
-from cProfile import label
-from turtle import color
 import classificacao01 as c1
 
 np, plt = c1.np, c1.plt

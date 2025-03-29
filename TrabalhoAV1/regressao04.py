@@ -47,3 +47,5 @@ plt.title("Coeficientes Beta para Diferentes Valores de Lambda")
 plt.legend()
 plt.grid(True)
 plt.show()
+
+bp=1

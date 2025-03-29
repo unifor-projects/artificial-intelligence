@@ -86,3 +86,5 @@ plt.title("Distribuição do RSS para Diferentes Modelos")
 plt.xticks(rotation=45)
 plt.grid(True)
 plt.show()
+
+bp=1

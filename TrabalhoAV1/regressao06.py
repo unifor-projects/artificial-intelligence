@@ -46,3 +46,5 @@ y_predito = X_novo.dot(beta_ridge)
 
 print(f"Atividade Enzimática Prevista: {y_predito[0][0]:.2f}")
 print()
+
+bp=1

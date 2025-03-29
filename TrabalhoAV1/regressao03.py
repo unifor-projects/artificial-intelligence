@@ -21,7 +21,7 @@ y_pred_linear = X_b.dot(theta)
 # Formula para os coeficiêntes: θ=(X^T . X + λI)^(−1) . X^T . y
 
 # Definidindo parametro de regularização lambda
-lambda_ridge = 1.0
+lambda_ridge = 0.5
 
 # Repaproveitando variavel X_b (Adicionando uma coluna de 1s para o termo de bias (intercepto))
 X_b = X_b
@@ -84,3 +84,5 @@ for i in range(2):
 
 plt.tight_layout()
 plt.show()
+
+bp=1
