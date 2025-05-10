@@ -8,16 +8,53 @@ import numpy as np
 # ================================================
 # ============= Carregando os dados: =============
 # ================================================
-dados = np.loadtxt('dados/Spiral3d.csv', delimiter=',')
+dados = np.loadtxt(
+    "/home/mari/college/artificial-intelligence/TrabalhoAV2/dados/Spiral3d.csv",
+    delimiter=",",
+)
 
 # Separa features (X) e labels (y)
-X = dados[:, :3] # Primeiras três colunas: coordenadas 3D
-y = dados[:, 3] # Quarta coluna: classe (1 ou -1)
+X = dados[:, :1] # Primeira 3 colunas definindo 3 variáveis independentes
+X = X.T # Transpõe para ficar na forma (3, N)
+X = np.vstack((
+    -np.ones(X.shape[1]), 
+    X
+)) # Adiciona coluna de bias (-1) na primeira linha
+y = dados[:, 1] # 4º Coluna definindo o rótulo
 
+p = X.shape[0] - 1 # Número de amostras (p) p = 1
+N = X.shape[1] # Número de features (N) N = 2250
 
 # ================================================
 # =========== Normalizando os dados: =============
 # ================================================
-media = X.mean(axis=0)
-desvio_padrao = X.std(axis=0)
-X_normalizado = (X - media) / desvio_padrao
+
+# Normalização Min-Max para X (excluindo o bias)
+X_min = X[1:].min()
+X_max = X[1:].max()
+X[1:] = (X[1:] - X_min) / (X_max - X_min)
+
+# Normalização Min-Max para y
+y_min = y.min()
+y_max = y.max()
+y = (y - y_min) / (y_max - y_min)
+
+#==========================================
+#======== Partição dos dados: =============
+#==========================================
+
+def data_partition(m, train_size=0.8):
+    # Embaralhamento dos dados para partição
+    idx = np.random.permutation(X.shape[1])
+    X_shuffled = X[:, idx]
+    y_shuffled = y[idx]
+
+    # Separa os dados para treinamento e teste (80% treino, 20% teste) para X e y
+    X_train, X_test = X_shuffled[:, :int(train_size * N)], X_shuffled[:, int(train_size * N):] # X = [p x N]
+
+    # Ajustando a dimensão de y para [m x N]
+    Y = y_shuffled.reshape(m, N) # y = [m x N]
+    # Separa os dados para treinamento e teste (80% treino, 20% teste) para y
+    y_train, y_test = Y[:, :int(train_size * N)], Y[:, int(train_size * N):]
+
+    return X_train, X_test, y_train, y_test
