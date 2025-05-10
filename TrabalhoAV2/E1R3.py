@@ -40,7 +40,7 @@ class AdalineRegressor:
 
         EQM1 = 0
         EQM2 = 1
-        for _ in tqdm(range(self.n_epochs), desc='Treinando Adaline', ncols=150):
+        for _ in tqdm(range(self.n_epochs), desc='Treinando Adaline', ncols=100):
             if np.abs(EQM1 - EQM2) < self.pr:
                 break
             
@@ -120,6 +120,7 @@ class MLPRegressor:
         self.i = []  # Lista de vetores de entrada líquida
         self.y = []  # Lista de vetores de saída
         self.δ = []  # Lista de vetores de delta
+        self.loss_history = [] # Lista de erros quadráticos médios (EQM)
         
         
     def __init_weights__(self, p):
@@ -298,7 +299,7 @@ class MLPRegressor:
         self.__init_weights__(r1.p) # Inicializa os pesos da rede MLP
         
         EQM = 1
-        for epoch in tqdm(range(self.n_epochs), desc="Treinamento MLP", ncols=150):
+        for epoch in tqdm(range(self.n_epochs), desc="Treinamento MLP", ncols=100):
             
             if EQM < self.pr:
                 break
@@ -319,7 +320,7 @@ class MLPRegressor:
             
             # Calcula o EQM para cada epoca
             EQM = self.__calc_eqm__(X, Y)
-            
+            self.loss_history.append(EQM)
             # Opcional: imprime o EQM a cada 100 épocas
             if epoch % 25 == 0:
                 print()
@@ -350,15 +351,9 @@ class MLPRegressor:
 
 if (__name__ == "__main__"):
     m=1 # Número de neurônios na camada de saída
-    mlp = MLPRegressor(L=2, Q=[150, 150], m=m, lr=0.1, n_epochs=1000, pr=1e-5)
+    mlp = MLPRegressor(L=2, Q=[150, 150], m=m, lr=0.1, n_epochs=1000, pr=1e-5) 
     
-    # Separa os dados para treinamento e teste (80% treino, 20% teste) para r1.X e r1.y
-    X_train, X_test = r1.X[:, :int(0.8 * r1.N)], r1.X[:, int(0.8 * r1.N):] # r1.X = [p x N]
-    
-    # Ajustando a dimensão de r1.y para [m x N]
-    Y = r1.y.reshape(m, r1.N) # r1.y = [m x N]
-    # Separa os dados para treinamento e teste (80% treino, 20% teste) para r1.y
-    y_train, y_test = Y[:, :int(0.8 * r1.N)], Y[:, int(0.8 * r1.N):]
+    X_train, X_test, y_train, y_test = r1.data_partition(m=m, train_size=0.8)
     
     # Treina a rede MLP com os dados de treinamento
     mlp.fit(X_train, y_train)

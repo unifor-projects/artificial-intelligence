@@ -16,7 +16,7 @@ X = X.T # Transpõe para ficar na forma (1, N)
 X = np.vstack((
     -np.ones(X.shape[1]), 
     X
-)) # Adiciona coluna de bias (-1) na primeira coluna
+)) # Adiciona coluna de bias (-1) na primeira linha 
 y = dados[:, 1] # Segunda coluna: Potência gerada pelo aerogerador (kW)
 
 
@@ -24,9 +24,9 @@ p = X.shape[0] - 1 # Número de amostras (p) p = 1
 N = X.shape[1] # Número de features (N) N = 2250
 
 
-# ================================================
+# =================================================
 # ============= Normalização dos dados: ===========
-# ================================================
+# =================================================
 
 # Normalização Min-Max para X (excluindo o bias)
 X_min = X[1:].min()
@@ -38,8 +38,29 @@ y_min = y.min()
 y_max = y.max()
 y = (y - y_min) / (y_max - y_min)
 
+# ==========================================
+# ======== Partição dos dados: =============
+# ==========================================
+def data_partition(m, train_size=0.8):
+    # Embaralhamento dos dados para partição
+    idx = np.random.permutation(X.shape[1])
+    X_shuffled = X[:, idx]
+    y_shuffled = y[idx]
+    
+    # Separa os dados para treinamento e teste (80% treino, 20% teste) para X e y
+    X_train, X_test = X_shuffled[:, :int(train_size * N)], X_shuffled[:, int(train_size * N):] # X = [p x N]
 
-# Apresentação dos dados
+    # Ajustando a dimensão de y para [m x N]
+    Y = y_shuffled.reshape(m, N) # y = [m x N]
+    # Separa os dados para treinamento e teste (80% treino, 20% teste) para y
+    y_train, y_test = Y[:, :int(train_size * N)], Y[:, int(train_size * N):]
+    
+    return X_train, X_test, y_train, y_test
+
+
+# ================================================
+# ========== Apresentação dos dados: =============
+# ================================================
 print("\n=====================================\n")
 
 print(f"Conjunto de dados: {dados.shape}")
