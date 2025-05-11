@@ -8,7 +8,7 @@ import numpy as np
 # ============= Carregando os dados: =============
 # ================================================
 dados = np.loadtxt(
-    "/home/mari/college/artificial-intelligence/TrabalhoAV2/dados/Spiral3d.csv",
+    "TrabalhoAV2/dados/Spiral3d.csv",
     delimiter=",",
 )
 

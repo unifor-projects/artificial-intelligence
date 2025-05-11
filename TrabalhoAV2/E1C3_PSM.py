@@ -1,6 +1,6 @@
-# Etapa 1 Regressão 3 (E1R3)
+# Etapa 1 Classificação 3 (E1C3)
 
-# 3. Os modelos de RNA a serem implementados nessa etapa serão: ADALINE e Perceptron de Múltiplas Camadas (MLP). 
+# 3. Os modelos de RNA a serem implementados nessa etapa serão: Perceptron Simples e Perceptron de Múltiplas Camadas (MLP). 
 # Para cada modelo, deve-se discutir como os hiperparâmetros foram escolhidos.
 
 import numpy as np
@@ -11,7 +11,7 @@ import E1C1 as c1
 # =====================================================
 # ================ Implementação MLP: =================
 # =====================================================
-class MLPRegressor:
+class MLP:
     def __init__(self, L=3, Q=[3, 4, 3], m=3, lr=0.01, n_epochs=1000, pr=1e-12):
         """
         Inicializa a rede MLP com os parâmetros fornecidos.
@@ -206,7 +206,7 @@ class MLPRegressor:
         
         
     
-    def fit(self, X, Y):
+    def fit(self, X, Y, plot_live=False):
         """
         Treina a rede MLP com os dados de entrada e saída fornecidos.
         
@@ -216,6 +216,16 @@ class MLPRegressor:
         """
         
         self.__init_weights__(c1.p) # Inicializa os pesos da rede MLP
+        
+        if plot_live:
+            fig, ax = plt.subplots(figsize=(8, 6))
+            line, = ax.plot([], [], label='Treino')
+            ax.set_title('Curva de Aprendizado - MLP')
+            ax.set_xlabel('Época')
+            ax.set_ylabel('MSE (Erro Quadrático Médio)')
+            ax.legend()
+            plt.ion() # Ativa o modo interativo para atualização do plot
+            plt.show()
         
         EQM = 1
         for epoch in tqdm(range(self.n_epochs), desc="Treinamento MLP", ncols=100):
@@ -240,13 +250,28 @@ class MLPRegressor:
             # Calcula o EQM para cada epoca
             EQM = self.__calc_eqm__(X, Y)
             self.loss_history.append(EQM)
+            
+            if plot_live:
+                # Atualiza o plot em tempo real
+                line.set_xdata(np.arange(len(self.loss_history)))
+                line.set_ydata(self.loss_history)
+                ax.relim() # Recalcula os limites dos eixos
+                ax.autoscale_view() # Reajusta a escala da visualização
+                fig.canvas.draw() # Redesenha o canvas
+                fig.canvas.flush_events() # Processa os eventos da interface gráfica
+            
             # Opcional: imprime o EQM a cada 100 épocas
             if epoch % 25 == 0:
                 print()
                 print(f"Época {epoch}, EQM: {EQM:.6f}")
+
+    def activation_function(self, y):
+        """
+        Função de ativação sigmoide.
+        """
+        return (y > 0.5).astype(int)
     
-    
-    def predict(self, X):
+    def predict(self, X, activation_function: bool = True):
         """
         Realiza a predição da saída da rede MLP para os dados de entrada fornecidos.
         
@@ -263,14 +288,18 @@ class MLPRegressor:
         for k in range(N):
             x_sample = X[:, k] # Amostra de entrada (p+1 x 1)
             self.forward(x_sample) # Propagação para frente
-            Y[:, k] = self.y[-1] # Saída da camada de saída (m)
+            if activation_function:
+                print(self.y[-1])
+                Y[:, k] = self.activation_function(self.y[-1]) # Saída da camada de saída (m)
+            else:
+                Y[:, k] = self.y[-1] # Saída da camada de saída (m)
         
         return Y
         
 
 if (__name__ == "__main__"):
     m=1 # Número de neurônios na camada de saída
-    mlp = MLPRegressor(L=2, Q=[150, 150], m=m, lr=0.1, n_epochs=1000, pr=1e-5) 
+    mlp = MLP(L=2, Q=[150, 150], m=m, lr=0.1, n_epochs=50, pr=1e-5) 
     
     X_train, X_test, y_train, y_test = c1.data_partition(m=m, train_size=0.8)
     

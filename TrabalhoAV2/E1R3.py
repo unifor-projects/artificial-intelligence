@@ -7,7 +7,6 @@ import numpy as np
 from tqdm import tqdm
 import matplotlib.pyplot as plt
 import E1R1 as r1
-import E1R2 as r2
 
 
 # =====================================================
@@ -33,14 +32,16 @@ class AdalineRegressor:
         eqm = eq/(2*N)
         return eqm
 
-    def fit(self, X, y):
+    def fit(self, X, y, show_eqm=False):
         p, N = X.shape
         self.weights = np.random.random_sample((p,1))-.5
         self.cost_history = []
+        
+        y = y.reshape(N,1)
 
         EQM1 = 0
         EQM2 = 1
-        for _ in tqdm(range(self.n_epochs), desc='Treinando Adaline', ncols=100):
+        for epoch in tqdm(range(self.n_epochs), desc='Treinando Adaline', ncols=100):
             if np.abs(EQM1 - EQM2) < self.pr:
                 break
             
@@ -54,23 +55,27 @@ class AdalineRegressor:
                 self.weights += self.learning_rate * e_k * x_k
         
             EQM2 = self.__calc_eqm__(X, y)
+            
+            if show_eqm and epoch % 25 == 0:
+                print()
+                print(f"Época {epoch}, EQM1: {EQM1:.6f}, EQM2: {EQM2:.6f}")
 
     def predict(self, X):
-        linear_output = np.dot(X, self.weights)
-        linear_output = np.hstack((X, linear_output))
+        linear_output = np.dot(self.weights.T, X)
         return linear_output
 
 if __name__ == '__main__':
     # Teste de implementação
-    adaline = AdalineRegressor(learning_rate=0.001, n_epochs=200, pr= 1e-5)
-    adaline.fit(r1.X, r1.y)
-    predict = adaline.predict(np.array([[-1, 4], [-1, 8], [-1, 12]]))
+    adaline = AdalineRegressor(learning_rate=0.01, n_epochs=300, pr= 1e-12)
+    X_train, X_test, y_train, y_test = r1.data_partition(m=1, train_size=0.8)
+    adaline.fit(X_train, y_train, show_eqm=True)
+    predict = adaline.predict(X_test)
 
     # Gera pontos para a linha de regressão
     x_min, x_max = r1.X[1:2, :].min(), r1.X[1:2, :].max()
     x_reg = np.linspace(x_min, x_max, r1.N).reshape(-1, 1)
     X_reg_b = np.c_[-np.ones((x_reg.shape[0], 1)), x_reg]
-    y_reg = adaline.predict(X_reg_b)
+    y_reg = adaline.predict(X_reg_b.T)
 
     print(f"Predição: \n{predict} \n")
     print(f"Pesos: \n{adaline.weights} \n")
@@ -79,13 +84,16 @@ if __name__ == '__main__':
     # Plota os dados de treinamento e a linha de regressão
     plt.figure(figsize=(10, 6))
     plt.scatter(r1.X[1:2, :], r1.y, color='blue', s=10, alpha=0.5)
-    plt.plot(x_reg, y_reg[:, -1], color='red', label='Regressão Linear (Adaline)')
+    plt.scatter(X_test[1:2, :], predict.T[:, -1], color='green', s=10, alpha=0.5)
+    plt.plot(x_reg, y_reg.T[:, -1], color='red', label='Regressão Linear (Adaline)')
     plt.title('Gráfico de Espalhamento: Velocidade do vento x Potência gerada')
     plt.xlabel('Velocidade do vento (m/s)')
     plt.ylabel('Potência gerada (kW)')
     plt.legend()
     plt.grid(True)
     plt.show()
+    
+    bp = 1
 
 
 # =====================================================
@@ -121,7 +129,13 @@ class MLPRegressor:
         self.y = []  # Lista de vetores de saída
         self.δ = []  # Lista de vetores de delta
         self.loss_history = [] # Lista de erros quadráticos médios (EQM)
-        
+    
+    def __restart__(self):
+        self.W = []
+        self.i = []
+        self.y = []
+        self.δ = []
+        self.loss_history = []
         
     def __init_weights__(self, p):
         """
@@ -130,6 +144,8 @@ class MLPRegressor:
         Args:
             p (int): Número de atributos de entrada.
         """
+        # Reinicia os pesos, entradas, saídas e deltas
+        self.__restart__()
         
         # Inicializa os pesos da camada de entrada para a primeira camada oculta
         # W possui dimensão [q0 por p+1]
@@ -287,7 +303,7 @@ class MLPRegressor:
         
         
     
-    def fit(self, X, Y):
+    def fit(self, X, Y, show_eqm=False):
         """
         Treina a rede MLP com os dados de entrada e saída fornecidos.
         
@@ -321,8 +337,9 @@ class MLPRegressor:
             # Calcula o EQM para cada epoca
             EQM = self.__calc_eqm__(X, Y)
             self.loss_history.append(EQM)
+            
             # Opcional: imprime o EQM a cada 100 épocas
-            if epoch % 25 == 0:
+            if show_eqm and epoch % 25 == 0:
                 print()
                 print(f"Época {epoch}, EQM: {EQM:.6f}")
     
