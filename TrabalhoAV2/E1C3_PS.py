@@ -3,7 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 # Carregar os dados
-df = pd.read_csv("/home/mari/college/artificial-intelligence/TrabalhoAV2/dados/Spiral3d.csv", header=None)
+df = pd.read_csv("TrabalhoAV2/dados/Spiral3d.csv", header=None)
 df.columns = ['x1', 'x2', 'x3', 'label']
 
 # Separar dados e rótulos

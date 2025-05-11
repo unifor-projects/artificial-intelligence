@@ -59,3 +59,23 @@ def data_partition(m, train_size=0.8):
     return X_train, X_test, y_train, y_test
 
 y = dados[:, -1]  # Pega a última coluna
+
+
+# ================================================
+# ========== Apresentação dos dados: =============
+# ================================================
+print("\n=====================================\n")
+
+print(f"Conjunto de dados: {dados.shape}")
+print(f"Número de amostras (N): {N}")
+print(f"Número de features (p): {p}")
+
+print("\n=====================================\n")
+
+print(f"X.shape (bias incluso): {X.shape}")
+print(f"y.shape: {y.shape}")
+
+print("\n=====================================\n")
+
+# Exibir algumas amostras
+print(f"dados[10:20]: \n{dados[10:20]}")
