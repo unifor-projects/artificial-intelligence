@@ -1,113 +1,64 @@
-import matplotlib.pyplot as plt
 import numpy as np
-from E1C1 import X_normalizado, y
+import pandas as pd
+import matplotlib.pyplot as plt
 
-# ================================================
-# ========= Perceptron Simples (Genérico) ========
-# ================================================
+# Carregar os dados
+df = pd.read_csv("/home/mari/college/artificial-intelligence/TrabalhoAV2/dados/Spiral3d.csv", header=None)
+df.columns = ['x1', 'x2', 'x3', 'label']
 
-# Convertendo os rótulos para -1 e 1
-y_binario = np.where(y == 1, 1, -1)
+# Separar dados e rótulos
+X = df[['x1', 'x2', 'x3']].values
+y = df['label'].values
+
+# Adicionar coluna de bias
+X_bias = np.hstack((np.ones((X.shape[0], 1)), X))  # [N, 4]
+
+# Inicializar pesos
+pesos = np.zeros(X_bias.shape[1])
 
 # Hiperparâmetros
-taxa_aprendizado = 0.01
-max_epocas = 1000
+learning_rate = 0.01
+max_epochs = 1000
+erros_por_epoca = []
 
-# Inicialização dos pesos e bias
-n_amostras, n_caracteristicas = X_normalizado.shape
-pesos = np.zeros(n_caracteristicas)
-bias = 0
-
-# Treinamento do Perceptron
-for epoca in range(max_epocas):
+# Treinamento
+for epoca in range(max_epochs):
     erros = 0
-    for i in range(n_amostras):
-        xi = X_normalizado[i]
-        yi = y_binario[i]
-
-        # Cálculo da ativação
-        ativacao = np.dot(xi, pesos) + bias
-
-        # Função de ativação (degrau)
-        predicao = 1 if ativacao >= 0 else -1
-
-        # Atualização se erro
-        if predicao != yi:
-            atualizacao = taxa_aprendizado * (yi - predicao)
-            pesos += atualizacao * xi
-            bias += atualizacao
+    for i in range(X_bias.shape[0]):
+        xi = X_bias[i]
+        yi = y[i]
+        pred = 1 if np.dot(pesos, xi) >= 0 else -1
+        erro = yi - pred
+        if erro != 0:
+            pesos += learning_rate * erro * xi
             erros += 1
-
-    # Critério de parada: convergência
+    erros_por_epoca.append(erros)
     if erros == 0:
-        print(f"Convergiu na época {epoca + 1}")
         break
 
+# Predições finais
+y_pred = []
+for i in range(X_bias.shape[0]):
+    pred = 1 if np.dot(pesos, X_bias[i]) >= 0 else -1
+    y_pred.append(pred)
+y_pred = np.array(y_pred)
+
+# Cálculo manual da acurácia
+acertos = np.sum(y_pred == y)
+acuracia = acertos / len(y)
+
+# Exibir resultados
+print(f"Acurácia: {acuracia * 100:.2f}%")
 print(f"Pesos finais: {pesos}")
-print(f"Bias final: {bias}")
 
-# Avaliação no conjunto de treino
-ativacoes = np.dot(X_normalizado, pesos) + bias
-predicoes = np.where(ativacoes >= 0, 1, -1)
-acuracia = np.mean(predicoes == y_binario)
-
-print(f"Acurácia no conjunto de treino: {acuracia * 100:.2f}%")
-
-# ================================================
-# ===== Representação Gráfica do Resultado =======
-# ================================================
-
-# Gerar os pontos do plano
-xx, yy = np.meshgrid(
-    np.linspace(X_normalizado[:, 0].min(), X_normalizado[:, 0].max(), 10),
-    np.linspace(X_normalizado[:, 1].min(), X_normalizado[:, 1].max(), 10)
-)
-
-zz = -(pesos[0] * xx + pesos[1] * yy + bias) / pesos[2]
-
-# Plot
-fig = plt.figure(figsize=(10, 7))
-ax = fig.add_subplot(111, projection="3d")
-
-# Cores: verde para acertos, preto para erros
-ativacoes = np.dot(X_normalizado, pesos) + bias
-predicoes = np.where(ativacoes >= 0, 1, -1)
-y_binario = np.where(y == 1, 1, -1)
-cores = ["green" if p == t else "black" for p, t in zip(predicoes, y_binario)]
-
-ax.scatter(X_normalizado[:, 0], X_normalizado[:, 1], X_normalizado[:, 2], c=cores, s=15)
-ax.plot_surface(xx, yy, zz, alpha=0.3, color='gray', rstride=1, cstride=1, edgecolor='none')
-
-ax.set_title("Plano de Decisão do Perceptron Simples")
-ax.set_xlabel("X")
-ax.set_ylabel("Y")
-ax.set_zlabel("Z")
-
+# Gráfico 3D da distribuição dos dados
+fig = plt.figure(figsize=(10, 6))
+ax = fig.add_subplot(111, projection='3d')
+cores = ['red' if label == -1 else 'blue' for label in y]
+ax.scatter(df['x1'], df['x2'], df['x3'], c=cores, alpha=0.6)
+ax.set_title('Distribuição 3D dos Dados - Spiral3d')
+ax.set_xlabel('x1')
+ax.set_ylabel('x2')
+ax.set_zlabel('x3')
+plt.tight_layout()
 plt.show()
-
-
-"""
-
-    Considerações Finais:
-
-    Acurácia = 50.90%
-    
-    Os dados fornecidos não são linearmente separáveis, logo a acurácia
-    apontada indica que o Perceptron está quase o mesmo que um chute 
-    aleatório, pois o Perceptron Simples não consegue aprender
-    fronteiras de decisão não lineares, então mesmo com a aplicação
-    correta do modelo ele é simples demais para o padrão complexo de 
-    dados fornecido.
-
-    Além disso, os dados são em formato espiral e o Perceptron tenta
-    encontrar um hiperplano que separe os dados em duas classes, e 
-    isso funciona apenas para dados linearmente separáveis.
-
-    Outro ponto do resultado da acurácia seria que o Perceptron é como
-    se estivesse "cortando" o espaço tridimensional de forma grosseira,
-    logo ele irá acertar parte dos exemplos que por sorte caem do lado
-    certo do plano e erra o restante que está do outro lado, mesmo que
-    pertecem a mesma classe, por isso a classificação ficou próximo a 
-    50%, demonstrando a aleatoriedade na aplicação problema.
-
-"""

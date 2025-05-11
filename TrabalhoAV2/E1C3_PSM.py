@@ -276,7 +276,19 @@ if (__name__ == "__main__"):
     
     # Treina a rede MLP com os dados de treinamento
     mlp.fit(X_train, y_train)
-    
+    # Plot do Erro Quadrático Médio (EQM) ao longo das épocas
+
+    plt.figure(figsize=(10, 5))
+    plt.plot(mlp.loss_history, label="EQM")
+    plt.title("Evolução do Erro Quadrático Médio (EQM) durante o treinamento")
+    plt.xlabel("Épocas")
+    plt.ylabel("EQM")
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("eqm_mlp.png")
+    plt.show()
+
     # Testa a rede MLP com os dados de teste
     Y = mlp.predict(X_test)
     print(Y)

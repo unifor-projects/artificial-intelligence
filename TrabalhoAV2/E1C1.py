@@ -4,7 +4,6 @@
 
 import numpy as np
 
-
 # ================================================
 # ============= Carregando os dados: =============
 # ================================================
@@ -14,13 +13,13 @@ dados = np.loadtxt(
 )
 
 # Separa features (X) e labels (y)
-X = dados[:, :1] # Primeira 3 colunas definindo 3 variáveis independentes
+X = dados[:, :3] # Primeira 3 colunas definindo 3 variáveis independentes
 X = X.T # Transpõe para ficar na forma (3, N)
 X = np.vstack((
     -np.ones(X.shape[1]), 
     X
 )) # Adiciona coluna de bias (-1) na primeira linha
-y = dados[:, 1] # 4º Coluna definindo o rótulo
+y = dados[:, 3] # 4º Coluna definindo o rótulo
 
 p = X.shape[0] - 1 # Número de amostras (p) p = 1
 N = X.shape[1] # Número de features (N) N = 2250
@@ -58,3 +57,5 @@ def data_partition(m, train_size=0.8):
     y_train, y_test = Y[:, :int(train_size * N)], Y[:, int(train_size * N):]
 
     return X_train, X_test, y_train, y_test
+
+y = dados[:, -1]  # Pega a última coluna
