@@ -4,11 +4,11 @@ import matplotlib.pyplot as plt
 
 # Carregar os dados
 df = pd.read_csv("TrabalhoAV2/dados/Spiral3d.csv", header=None)
-df.columns = ['x1', 'x2', 'x3', 'label']
+df.columns = ["x1", "x2", "x3", "label"]
 
 # Separar dados e rótulos
-X = df[['x1', 'x2', 'x3']].values
-y = df['label'].values
+X = df[["x1", "x2", "x3"]].values
+y = df["label"].values
 
 # Adicionar coluna de bias
 X_bias = np.hstack((np.ones((X.shape[0], 1)), X))  # [N, 4]
@@ -53,12 +53,12 @@ print(f"Pesos finais: {pesos}")
 
 # Gráfico 3D da distribuição dos dados
 fig = plt.figure(figsize=(10, 6))
-ax = fig.add_subplot(111, projection='3d')
-cores = ['red' if label == -1 else 'blue' for label in y]
-ax.scatter(df['x1'], df['x2'], df['x3'], c=cores, alpha=0.6)
-ax.set_title('Distribuição 3D dos Dados - Spiral3d')
-ax.set_xlabel('x1')
-ax.set_ylabel('x2')
-ax.set_zlabel('x3')
+ax = fig.add_subplot(111, projection="3d")
+cores = ["red" if label == -1 else "blue" for label in y]
+ax.scatter(df["x1"], df["x2"], df["x3"], c=cores, alpha=0.6)
+ax.set_title("Distribuição 3D dos Dados - Spiral3d")
+ax.set_xlabel("x1")
+ax.set_ylabel("x2")
+ax.set_zlabel("x3")
 plt.tight_layout()
 plt.show()

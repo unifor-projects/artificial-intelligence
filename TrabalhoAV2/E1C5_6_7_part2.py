@@ -7,9 +7,10 @@ from tqdm import tqdm
 
 # Carregar dados
 df = pd.read_csv("TrabalhoAV2/dados/Spiral3d.csv", header=None)
-df.columns = ['x1', 'x2', 'x3', 'label']
-X = df[['x1', 'x2', 'x3']].values
-y = np.where(df['label'].values == -1, 0, 1)
+df.columns = ["x1", "x2", "x3", "label"]
+X = df[["x1", "x2", "x3"]].values
+y = np.where(df["label"].values == -1, 0, 1)
+
 
 # MLP
 class MLP:
@@ -23,7 +24,7 @@ class MLP:
     def init_weights(self, input_dim, hidden):
         layers = [input_dim] + hidden + [1]
         for i in range(len(layers) - 1):
-            self.W.append(np.random.uniform(-0.5, 0.5, (layers[i+1], layers[i] + 1)))
+            self.W.append(np.random.uniform(-0.5, 0.5, (layers[i + 1], layers[i] + 1)))
 
     def sigmoid(self, x):
         return 1 / (1 + np.exp(-x))
@@ -43,8 +44,10 @@ class MLP:
         deltas = [None] * len(self.W)
         deltas[-1] = self.sigmoid_deriv(self.y[-1]) * (d - self.y[-1])
         for l in reversed(range(len(self.W) - 1)):
-            W_no_bias = self.W[l+1][:, 1:]
-            deltas[l] = self.sigmoid_deriv(self.y[l]) * np.dot(W_no_bias.T, deltas[l+1])
+            W_no_bias = self.W[l + 1][:, 1:]
+            deltas[l] = self.sigmoid_deriv(self.y[l]) * np.dot(
+                W_no_bias.T, deltas[l + 1]
+            )
 
         input_vals = []
         x_bias = np.insert(x, 0, -1)
@@ -68,9 +71,11 @@ class MLP:
     def predict(self, X):
         return np.array([self.forward(x) for x in X]).squeeze()
 
+
 # Funcoes auxiliares
 def acuracia(y_true, y_pred):
     return np.mean(y_true == y_pred)
+
 
 def matriz_confusao(y_true, y_pred):
     TP = np.sum((y_true == 1) & (y_pred == 1))
@@ -78,6 +83,7 @@ def matriz_confusao(y_true, y_pred):
     FP = np.sum((y_true == 0) & (y_pred == 1))
     FN = np.sum((y_true == 1) & (y_pred == 0))
     return np.array([[TN, FP], [FN, TP]])
+
 
 # Monte Carlo
 R = 250
@@ -111,11 +117,11 @@ print(f"Menor Valor: {np.min(accs):.4f}")
 idx_max = np.argmax(accs)
 idx_min = np.argmin(accs)
 
-sns.heatmap(matriz_confusao(*predicoes[idx_max]), annot=True, fmt='d', cmap="Blues")
+sns.heatmap(matriz_confusao(*predicoes[idx_max]), annot=True, fmt="d", cmap="Blues")
 plt.title("MLP - Melhor Rodada")
 plt.show()
 
-sns.heatmap(matriz_confusao(*predicoes[idx_min]), annot=True, fmt='d', cmap="Reds")
+sns.heatmap(matriz_confusao(*predicoes[idx_min]), annot=True, fmt="d", cmap="Reds")
 plt.title("MLP - Pior Rodada")
 plt.show()
 

@@ -7,17 +7,20 @@ from tqdm import tqdm
 
 # Carregar dados
 df = pd.read_csv("TrabalhoAV2/dados/Spiral3d.csv", header=None)
-df.columns = ['x1', 'x2', 'x3', 'label']
-X = df[['x1', 'x2', 'x3']].values
-y = np.where(df['label'].values == -1, 0, 1)
+df.columns = ["x1", "x2", "x3", "label"]
+X = df[["x1", "x2", "x3"]].values
+y = np.where(df["label"].values == -1, 0, 1)
+
 
 # Funcoes auxiliares
 def prever(X, pesos):
     X_bias = np.hstack((np.ones((X.shape[0], 1)), X))
     return (np.dot(X_bias, pesos) >= 0).astype(int)
 
+
 def acuracia(y_true, y_pred):
     return np.mean(y_true == y_pred)
+
 
 def matriz_confusao(y_true, y_pred):
     TP = np.sum((y_true == 1) & (y_pred == 1))
@@ -25,6 +28,7 @@ def matriz_confusao(y_true, y_pred):
     FP = np.sum((y_true == 0) & (y_pred == 1))
     FN = np.sum((y_true == 1) & (y_pred == 0))
     return np.array([[TN, FP], [FN, TP]])
+
 
 # Monte Carlo
 R = 250
@@ -71,11 +75,11 @@ print(f"Menor Valor: {np.min(accs):.4f}")
 idx_max = np.argmax(accs)
 idx_min = np.argmin(accs)
 
-sns.heatmap(matriz_confusao(*predicoes[idx_max]), annot=True, fmt='d', cmap="Blues")
+sns.heatmap(matriz_confusao(*predicoes[idx_max]), annot=True, fmt="d", cmap="Blues")
 plt.title("Perceptron - Melhor Rodada")
 plt.show()
 
-sns.heatmap(matriz_confusao(*predicoes[idx_min]), annot=True, fmt='d', cmap="Reds")
+sns.heatmap(matriz_confusao(*predicoes[idx_min]), annot=True, fmt="d", cmap="Reds")
 plt.title("Perceptron - Pior Rodada")
 plt.show()
 
