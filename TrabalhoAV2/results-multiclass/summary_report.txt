@@ -1,0 +1,6 @@
+
+Resultados das 100 rodadas de Monte Carlo:
+| Modelo                  | Média   | Desvio-Padrão | Maior Valor | Menor Valor |
+|-------------------------|---------|---------------|-------------|-------------|
+| Adaline                 | 0.8044  | 0.0499        | 0.9032      | 0.6290      |
+| Perceptron Multicamadas | 0.7365  | 0.0501        | 0.8548      | 0.6129      |
